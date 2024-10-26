@@ -15,7 +15,7 @@ export default function Home() {
         <MoveUpRightIcon className="w-4 h-4 font-extrabold" />
       </Link>
       <h1 className="text-3xl font-bold mb-4 sm:text-7xl">
-Kunal Singh's Atmosoft&trade;
+Kunal Singh&apos;s Atmosoft&trade;
       </h1>
       <p className="mb-8 sm:text-xl max-w-[800px] text-muted-foreground">
         This feature-packed documentation Content, offers a
