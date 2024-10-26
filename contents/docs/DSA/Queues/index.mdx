@@ -1,0 +1,319 @@
+### Understanding Queues in Data Structures and Algorithms (DSA) with C++ Code Examples
+
+**Introduction**
+
+A **queue** is a linear data structure that follows the **First-In, First-Out (FIFO)** principle, meaning that the first element added to the queue is the first one to be removed. Queues are essential for applications where elements need to be processed in a specific order, such as task scheduling, printer spooling, and network data packets. In this guide, we’ll cover the fundamentals of queues, operations, types, applications, and C++ implementations.
+
+---
+
+### 1. What is a Queue?
+
+A queue is a data structure where elements are added from the **rear** (or back) and removed from the **front**. This ordering is ideal for managing tasks or data that must be processed in the order of arrival.
+
+---
+
+### 2. Queue Operations
+
+Queues support the following core operations:
+
+| Operation     | Description                                   | Time Complexity |
+|---------------|-----------------------------------------------|-----------------|
+| **Enqueue**   | Adds an element to the rear of the queue      | O(1)            |
+| **Dequeue**   | Removes the element from the front            | O(1)            |
+| **Front**     | Retrieves the front element without removing  | O(1)            |
+| **isEmpty**   | Checks if the queue is empty                  | O(1)            |
+| **isFull**    | Checks if the queue is full (for arrays)      | O(1)            |
+
+---
+
+### 3. Types of Queues
+
+1. **Simple Queue**: A basic queue where elements are added at the rear and removed from the front.
+2. **Circular Queue**: Overcomes the limitation of fixed-size arrays by reusing empty slots from dequeued elements.
+3. **Priority Queue**: Elements are assigned priority levels, with higher-priority elements dequeued before lower-priority ones.
+4. **Deque (Double-Ended Queue)**: Allows insertion and removal at both ends (front and rear).
+
+---
+
+### 4. Queue Implementations in C++
+
+Queues can be implemented using arrays or linked lists. Here’s a look at both implementations.
+
+---
+
+#### Array-Based Queue in C++
+
+An array-based queue has a fixed size and uses pointers to track the front and rear of the queue. It requires logic to avoid overflow once the rear reaches the array's end, hence the circular queue.
+
+**Code for Array-Based Queue**
+
+```cpp
+#include <iostream>
+#define MAX 100
+
+class Queue {
+    int front, rear;
+    int arr[MAX];
+
+public:
+    Queue() : front(-1), rear(-1) {}
+
+    // Enqueue operation
+    void enqueue(int value) {
+        if (rear == MAX - 1) {
+            std::cout << "Queue Overflow\n";
+            return;
+        }
+        if (front == -1) front = 0;  // First insertion
+        arr[++rear] = value;
+    }
+
+    // Dequeue operation
+    int dequeue() {
+        if (front == -1 || front > rear) {
+            std::cout << "Queue Underflow\n";
+            return -1;
+        }
+        return arr[front++];
+    }
+
+    // Check if the queue is empty
+    bool isEmpty() {
+        return front == -1 || front > rear;
+    }
+
+    // Front element without removing
+    int getFront() {
+        if (isEmpty()) {
+            std::cout << "Queue is empty\n";
+            return -1;
+        }
+        return arr[front];
+    }
+};
+
+// Testing the array-based queue
+int main() {
+    Queue queue;
+    queue.enqueue(10);
+    queue.enqueue(20);
+    std::cout << "Front element: " << queue.getFront() << "\n";
+    queue.dequeue();
+    std::cout << "Front element after dequeue: " << queue.getFront() << "\n";
+    return 0;
+}
+```
+
+---
+
+#### Circular Queue in C++
+
+A circular queue reuses dequeued slots by wrapping the rear pointer back to the start of the array when it reaches the end.
+
+**Code for Circular Queue**
+
+```cpp
+#include <iostream>
+#define MAX 100
+
+class CircularQueue {
+    int front, rear;
+    int arr[MAX];
+
+public:
+    CircularQueue() : front(-1), rear(-1) {}
+
+    // Enqueue operation for circular queue
+    void enqueue(int value) {
+        if ((rear + 1) % MAX == front) {
+            std::cout << "Queue Overflow\n";
+            return;
+        }
+        if (front == -1) front = 0;  // First insertion
+        rear = (rear + 1) % MAX;
+        arr[rear] = value;
+    }
+
+    // Dequeue operation for circular queue
+    int dequeue() {
+        if (front == -1) {
+            std::cout << "Queue Underflow\n";
+            return -1;
+        }
+        int data = arr[front];
+        if (front == rear) {
+            front = rear = -1;  // Reset queue if it becomes empty
+        } else {
+            front = (front + 1) % MAX;
+        }
+        return data;
+    }
+
+    // Check if the queue is empty
+    bool isEmpty() {
+        return front == -1;
+    }
+
+    // Front element without removing
+    int getFront() {
+        if (isEmpty()) {
+            std::cout << "Queue is empty\n";
+            return -1;
+        }
+        return arr[front];
+    }
+};
+
+// Testing the circular queue
+int main() {
+    CircularQueue queue;
+    queue.enqueue(10);
+    queue.enqueue(20);
+    std::cout << "Front element: " << queue.getFront() << "\n";
+    queue.dequeue();
+    std::cout << "Front element after dequeue: " << queue.getFront() << "\n";
+    return 0;
+}
+```
+
+---
+
+#### Linked List-Based Queue in C++
+
+A linked list-based queue allows dynamic memory allocation and is more flexible than an array-based queue since there is no fixed size.
+
+**Code for Linked List-Based Queue**
+
+```cpp
+#include <iostream>
+
+class Node {
+public:
+    int data;
+    Node* next;
+
+    Node(int value) : data(value), next(nullptr) {}
+};
+
+class Queue {
+    Node *front, *rear;
+
+public:
+    Queue() : front(nullptr), rear(nullptr) {}
+
+    // Enqueue operation
+    void enqueue(int value) {
+        Node* newNode = new Node(value);
+        if (rear == nullptr) {
+            front = rear = newNode;
+            return;
+        }
+        rear->next = newNode;
+        rear = newNode;
+    }
+
+    // Dequeue operation
+    int dequeue() {
+        if (front == nullptr) {
+            std::cout << "Queue Underflow\n";
+            return -1;
+        }
+        Node* temp = front;
+        int value = front->data;
+        front = front->next;
+
+        if (front == nullptr) rear = nullptr;
+
+        delete temp;
+        return value;
+    }
+
+    // Check if the queue is empty
+    bool isEmpty() {
+        return front == nullptr;
+    }
+
+    // Front element without removing
+    int getFront() {
+        if (isEmpty()) {
+            std::cout << "Queue is empty\n";
+            return -1;
+        }
+        return front->data;
+    }
+};
+
+// Testing the linked list-based queue
+int main() {
+    Queue queue;
+    queue.enqueue(10);
+    queue.enqueue(20);
+    std::cout << "Front element: " << queue.getFront() << "\n";
+    queue.dequeue();
+    std::cout << "Front element after dequeue: " << queue.getFront() << "\n";
+    return 0;
+}
+```
+
+---
+
+### 5. Queue Applications
+
+Queues are widely used in various applications:
+
+1. **Task Scheduling**: Used by operating systems to manage CPU scheduling.
+2. **Data Buffering**: Network devices use queues to buffer packets before processing.
+3. **Breadth-First Search (BFS)**: BFS for graphs uses a queue to explore nodes level by level.
+4. **Printer Spooling**: Queues manage print jobs in the order they are received.
+5. **Real-Time Systems**: Real-time task management, where tasks are processed in the order they arrive.
+
+---
+
+### 6. Common Problems Using Queues
+
+#### a) **Implementing BFS in a Graph**
+
+Breadth-First Search (BFS) traverses a graph level by level using a queue. Each node is visited in the order of their discovery.
+
+**Code for BFS**
+
+```cpp
+#include <iostream>
+#include <queue>
+#include <vector>
+
+void BFS(int start, const std::vector<std::vector<int>>& adjList) {
+    std::vector<bool> visited(adjList.size(), false);
+    std::queue<int> q;
+    q.push(start);
+    visited[start] = true;
+
+    while (!q.empty()) {
+        int node = q.front();
+        q.pop();
+        std::cout << node << " ";
+
+        for (int neighbor : adjList[node]) {
+            if (!visited[neighbor]) {
+                q.push(neighbor);
+                visited[neighbor] = true;
+            }
+        }
+    }
+}
+
+int main() {
+    std::vector<std::vector<int>> adjList = {
+        {1, 2}, {0, 3}, {0, 4}, {1}, {2}
+    };
+    std::cout << "BFS Traversal starting from node 0:\n";
+    BFS(0, adjList);
+    return 0;
+}
+```
+
+---
+
+### Conclusion
+
+Queues are foundational data structures with broad applications in computer science. From task scheduling to BFS traversal, queues provide efficient ways to manage data in a sequential manner.

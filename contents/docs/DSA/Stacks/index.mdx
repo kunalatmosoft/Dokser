@@ -1,0 +1,301 @@
+### Understanding Stacks in Data Structures and Algorithms (DSA) with C++ Code Examples
+
+**Introduction**
+
+A **stack** is a linear data structure that follows the **Last-In, First-Out (LIFO)** principle. This means that the last element added to the stack is the first one to be removed. Stacks are widely used in areas such as function call management, expression evaluation, syntax parsing, and backtracking algorithms. Here, we’ll explore the stack data structure, its operations, applications, and common problems, along with C++ implementations.
+
+---
+
+### 1. Stack Structure in C++
+
+A stack can be implemented in various ways, the two most common being:
+
+- **Array-Based Stack**: Fixed-size, contiguous memory allocation.
+- **Linked List-Based Stack**: Dynamic memory allocation, implemented with nodes.
+
+---
+
+### 2. Array-Based Stack in C++
+
+An array-based stack implementation is straightforward but has a fixed size, which can lead to stack overflow if not handled correctly.
+
+#### Array-Based Stack Code in C++
+
+```cpp
+#include <iostream>
+#define MAX 100
+
+class Stack {
+    int top;
+    int arr[MAX];
+    
+public:
+    Stack() { top = -1; }
+
+    // Push operation
+    void push(int value) {
+        if (top >= MAX - 1) {
+            std::cout << "Stack Overflow\n";
+            return;
+        }
+        arr[++top] = value;
+    }
+
+    // Pop operation
+    int pop() {
+        if (top < 0) {
+            std::cout << "Stack Underflow\n";
+            return -1;
+        }
+        return arr[top--];
+    }
+
+    // Peek operation
+    int peek() {
+        if (top < 0) {
+            std::cout << "Stack is Empty\n";
+            return -1;
+        }
+        return arr[top];
+    }
+
+    // Check if the stack is empty
+    bool isEmpty() {
+        return top == -1;
+    }
+};
+
+// Testing the array-based stack
+int main() {
+    Stack stack;
+    stack.push(10);
+    stack.push(20);
+    std::cout << "Top element: " << stack.peek() << "\n";
+    stack.pop();
+    std::cout << "Top element after pop: " << stack.peek() << "\n";
+    return 0;
+}
+```
+
+---
+
+### 3. Linked List-Based Stack in C++
+
+A linked list-based stack dynamically allocates memory, avoiding fixed size limitations and enabling efficient stack operations.
+
+#### Linked List-Based Stack Code in C++
+
+```cpp
+#include <iostream>
+
+class Node {
+public:
+    int data;
+    Node* next;
+
+    Node(int value) : data(value), next(nullptr) {}
+};
+
+class Stack {
+    Node* top;
+    
+public:
+    Stack() : top(nullptr) {}
+
+    // Push operation
+    void push(int value) {
+        Node* newNode = new Node(value);
+        newNode->next = top;
+        top = newNode;
+    }
+
+    // Pop operation
+    int pop() {
+        if (top == nullptr) {
+            std::cout << "Stack Underflow\n";
+            return -1;
+        }
+        int value = top->data;
+        Node* temp = top;
+        top = top->next;
+        delete temp;
+        return value;
+    }
+
+    // Peek operation
+    int peek() {
+        if (top == nullptr) {
+            std::cout << "Stack is Empty\n";
+            return -1;
+        }
+        return top->data;
+    }
+
+    // Check if the stack is empty
+    bool isEmpty() {
+        return top == nullptr;
+    }
+};
+
+// Testing the linked list-based stack
+int main() {
+    Stack stack;
+    stack.push(10);
+    stack.push(20);
+    std::cout << "Top element: " << stack.peek() << "\n";
+    stack.pop();
+    std::cout << "Top element after pop: " << stack.peek() << "\n";
+    return 0;
+}
+```
+
+---
+
+### 4. Common Stack Applications with C++ Examples
+
+Stacks are used in various applications, such as expression evaluation, balancing symbols, and backtracking. Here are a few examples.
+
+---
+
+#### a) **Balanced Parentheses Check**
+
+This function checks if an expression has balanced parentheses, braces, or brackets.
+
+```cpp
+#include <iostream>
+#include <stack>
+#include <string>
+
+bool isBalanced(const std::string& expression) {
+    std::stack<char> s;
+    for (char ch : expression) {
+        if (ch == '(' || ch == '{' || ch == '[') {
+            s.push(ch);
+        } else if (ch == ')' || ch == '}' || ch == ']') {
+            if (s.empty()) return false;
+            char top = s.top();
+            if ((ch == ')' && top != '(') ||
+                (ch == '}' && top != '{') ||
+                (ch == ']' && top != '[')) return false;
+            s.pop();
+        }
+    }
+    return s.empty();
+}
+
+int main() {
+    std::string expression = "{[()]}";
+    std::cout << (isBalanced(expression) ? "Balanced" : "Not Balanced") << "\n";
+    return 0;
+}
+```
+
+---
+
+#### b) **Infix to Postfix Conversion**
+
+The **Shunting Yard algorithm** uses a stack to convert infix expressions to postfix.
+
+```cpp
+#include <iostream>
+#include <stack>
+#include <string>
+
+int precedence(char op) {
+    if (op == '+' || op == '-') return 1;
+    if (op == '*' || op == '/') return 2;
+    return 0;
+}
+
+std::string infixToPostfix(const std::string& infix) {
+    std::stack<char> s;
+    std::string postfix;
+    for (char ch : infix) {
+        if (std::isalnum(ch)) {
+            postfix += ch;
+        } else if (ch == '(') {
+            s.push(ch);
+        } else if (ch == ')') {
+            while (!s.empty() && s.top() != '(') {
+                postfix += s.top();
+                s.pop();
+            }
+            s.pop();
+        } else {
+            while (!s.empty() && precedence(s.top()) >= precedence(ch)) {
+                postfix += s.top();
+                s.pop();
+            }
+            s.push(ch);
+        }
+    }
+    while (!s.empty()) {
+        postfix += s.top();
+        s.pop();
+    }
+    return postfix;
+}
+
+int main() {
+    std::string infix = "A+B*C";
+    std::cout << "Postfix: " << infixToPostfix(infix) << "\n";
+    return 0;
+}
+```
+
+---
+
+#### c) **Evaluate Postfix Expression**
+
+This algorithm evaluates a postfix expression using a stack, where each operator applies to the two most recent operands on the stack.
+
+```cpp
+#include <iostream>
+#include <stack>
+#include <string>
+
+int evaluatePostfix(const std::string& postfix) {
+    std::stack<int> s;
+    for (char ch : postfix) {
+        if (std::isdigit(ch)) {
+            s.push(ch - '0');
+        } else {
+            int b = s.top(); s.pop();
+            int a = s.top(); s.pop();
+            switch (ch) {
+                case '+': s.push(a + b); break;
+                case '-': s.push(a - b); break;
+                case '*': s.push(a * b); break;
+                case '/': s.push(a / b); break;
+            }
+        }
+    }
+    return s.top();
+}
+
+int main() {
+    std::string postfix = "53+82-*";
+    std::cout << "Evaluation result: " << evaluatePostfix(postfix) << "\n";
+    return 0;
+}
+```
+
+---
+
+### 5. Advantages and Limitations of Stacks
+
+**Advantages**:
+1. **Efficient for LIFO Operations**: Supports constant-time push/pop operations.
+2. **Memory Management**: Used in managing function calls with the call stack.
+3. **Simple and Fast**: Easy to implement with efficient performance for stack-based tasks.
+
+**Limitations**:
+1. **Restricted Access**: Can only access the top element directly.
+2. **Limited Size**: Fixed-size in array-based implementations unless dynamically resized.
+3. **LIFO Order Only**: Unsuitable for random access or other access patterns.
+
+---
+
+### Conclusion
+
+Stacks are foundational data structures used in a wide range of algorithms and applications. From managing function calls to evaluating mathematical expressions, stacks play a crucial role in computer science. With the C++ examples provided here, you now have a solid understanding of stack operations, applications, and ways to implement stacks efficiently. Mastering stacks builds a strong foundation for tackling more advanced data structures and algorithms.
